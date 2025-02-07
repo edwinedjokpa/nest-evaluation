@@ -68,11 +68,58 @@ To get a local copy up and running follow these simple example steps.
     npm install
     ```
 
-3.  Set up database
+3.  **Set up Database**:
 
     - Create a database in Postgres
+    - Create a `.env` file in the root directory and add the following variables:
 
-4.  **Set up Environment Variables**:
+    ```bash
+    POSTGRES_HOST=your_postgres_host
+    POSTGRES_PORT=your_postgres_port
+    POSTGRES_USER=your_postgres_user
+    POSTGRES_PASSWORD=your_postgres_password
+    POSTGRES_DB=your_postgres_db
+    ```
+
+4.  **Set up Redis**:
+
+    - Install Redis and start the Redis server.
+    - Update the `REDIS_HOST` and `REDIS_PORT` in your `.env` file.
+    - Run the Redis server:
+
+    ```bash
+    redis-server
+    ```
+
+    - Verify that Redis is running by running the following command:
+
+    ```bash
+    redis-cli ping
+    ```
+
+    - If the response is "PONG", Redis is running.
+    - If the response is not "PONG", check your Redis configuration and ensure it's running.
+    - If Redis is not running, start it using the command:
+
+    ```bash
+    redis-server
+    ```
+
+5.  **Set up SMTP**:
+
+    - Set up an SMTP server for sending emails.
+    - Update the `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, and `SMTP_FROM` in your `.env` file.
+    - You can use services like [Mailgun](https://www.mailgun.com/) or [SendGrid](https://sendgrid.com/) for sending emails.
+    - You can also use your own SMTP server or a service like [Mailtrap](https://mailtrap.io/) for testing.
+
+6.  **Set up AWS S3**:
+
+    - Set up an AWS S3 bucket for storing files.
+    - Update the `AWS_S3_ACCESS_KEY`, `AWS_S3_SECRET_KEY`, `AWS_S3_BUCKET`, and `AWS_S3_REGION` in your `.env` file.
+    - You can use the AWS Management Console to create an S3 bucket and get the necessary credentials.
+    - You use services like [Amazon S3](https://aws.amazon.com/s3/) for storing files.
+
+7.  **Update Environment Variables**:
 
     - Create a `.env` file in the root directory and add the following variables:
 
@@ -100,7 +147,7 @@ To get a local copy up and running follow these simple example steps.
     AWS_S3_BUCKET=your_aws_bucket_name
     ```
 
-5.  **Run the Application with Docker**:
+8.  **Run the Application with Docker**:
 
     - If you want to use Docker, you can use the provided `docker-compose.yml` file to set up the necessary services.
 
@@ -108,57 +155,24 @@ To get a local copy up and running follow these simple example steps.
       docker-compose up
       ```
 
-    - If you want to run the application without Docker, you can use the following command:
-
-      Run migrations to create tables in the database:
+    - Run migrations to create tables in the database:
 
       ```bash
         docker compose exec server npm run migration:docker
       ```
 
-6.  **Set up Redis**:
-
-    - Install Redis and start the Redis server.
-    - Update the `REDIS_HOST` and `REDIS_PORT` in your `.env` file.
-    - Run the Redis server:
-
-    ```bash
-    redis-server
-    ```
-
-    - Verify that Redis is running by running the following command:
-
-    ```bash
-    redis-cli ping
-    ```
-
-    - If the response is "PONG", Redis is running.
-    - If the response is not "PONG", check your Redis configuration and ensure it's running.
-    - If Redis is not running, start it using the command:
-
-    ```bash
-    redis-server
-    ```
-
-7.  **Set up SMTP**:
-
-    - Set up an SMTP server for sending emails.
-    - Update the `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, and `SMTP_FROM` in your `.env` file.
-    - You can use services like [Mailgun](https://www.mailgun.com/) or [SendGrid](https://sendgrid.com/) for sending emails.
-    - You can also use your own SMTP server or a service like [Mailtrap](https://mailtrap.io/) for testing.
-
-8.  **Run Migrations**:
-
-    ```bash
-    npm run migration:run
-    ```
-
-9.  **Run the Application**:
+9.  **Run the Application without Docker**:
 
     - Start the development server:
 
     ```bash
     npm run start:dev
+    ```
+
+    - Run migrations to create tables in the database:
+
+    ```bash
+    npm run migration:run
     ```
 
     The API will be accessible at `http://localhost:3000`.
