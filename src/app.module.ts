@@ -11,6 +11,8 @@ import { AuthModule } from './auth/auth.module';
 import { UploadService } from './upload/upload.service';
 import { UserModule } from './user/user.module';
 import { EmailModule } from './email/email.module';
+import { PingService } from './ping/ping.service';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -36,6 +38,7 @@ import { EmailModule } from './email/email.module';
     AuthModule,
     UserModule,
     EmailModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [
@@ -45,6 +48,7 @@ import { EmailModule } from './email/email.module';
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    PingService,
   ],
 })
 export class AppModule {}
