@@ -1,10 +1,11 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { EmailJobData } from './job-types';
 import { EmailService } from './email.service';
+import { EMAIL_QUEUE_NAME } from 'src/constants';
 
-@Processor('email')
+@Processor(EMAIL_QUEUE_NAME)
 @Injectable()
 export class EmailProcessor extends WorkerHost {
   private readonly logger: Logger = new Logger(EmailProcessor.name);
@@ -14,96 +15,49 @@ export class EmailProcessor extends WorkerHost {
   }
 
   async process(job: Job<EmailJobData>) {
+    this.validateJobData(job.data);
+
     const { to, subject, context, template } = job.data;
 
-    // Validate required fields
-    if (!this.validateJobData(job, to, subject, template)) {
-      return;
-    }
-
     try {
-      // Send the email
       await this.emailService.sendSingleMail(to, subject, context, template);
-      this.logger.log(
-        `Job ID: ${job.id} processed successfully. Email sent to: ${to}`,
-      );
-      await job.moveToCompleted('Email sent successfully', job.token);
+      this.logger.log(`Job: ${job.id} processed from queue`);
     } catch (error) {
-      await this.handleError(job, error);
-    }
-  }
-
-  // Validate job data and log error if invalid
-  private validateJobData(
-    job: Job<EmailJobData>,
-    to: string,
-    subject: string,
-    template: string,
-  ): boolean {
-    if (!to || !subject || !template) {
-      const missingFields = [
-        !to ? 'to' : null,
-        !subject ? 'subject' : null,
-        !template ? 'template' : null,
-      ]
-        .filter(Boolean)
-        .join(', ');
-
       this.logger.error(
-        `Invalid job data for Job ID: ${job.id}. Missing required fields: ${missingFields}`,
+        `Job: ${job.id} failed with error: ${error.message}`,
+        error.stack,
       );
-      job.moveToFailed(
-        new Error(`Missing required fields: ${missingFields}`),
-        job.token,
-      );
-      return false;
-    }
-    return true;
-  }
-
-  // Handle error, retry if transient, or move to failed
-  private async handleError(job: Job, error: any) {
-    this.logger.error(
-      `Error processing Job ID: ${job.id}. Error: ${error.message}`,
-      error.stack,
-    );
-
-    if (this.isTransientError(error)) {
-      this.logger.log(
-        `Transient error detected for Job ID: ${job.id}. Retrying...`,
-      );
-      try {
-        // Optionally, limit retries to prevent infinite retry loops
-        if (job.attemptsMade < 3) {
-          await job.retry();
-        } else {
-          await this.moveToFailed(job, error, 'Exceeded retry limit');
-        }
-      } catch (retryError) {
-        this.logger.error('Error retrying job', retryError);
-        await this.moveToFailed(job, retryError, 'Retry failed');
-      }
-    } else {
-      await this.moveToFailed(job, error);
     }
   }
 
-  // Move job to failed state with error message
-  private async moveToFailed(
-    job: Job,
-    error: any,
-    reason: string = error.message,
-  ) {
-    this.logger.log(
-      `Non-transient error detected for Job ID: ${job.id}. Marking job as failed. Reason: ${reason}`,
-    );
-    await job.moveToFailed(new Error(reason), job.token);
+  @OnWorkerEvent('completed')
+  onCompleted(job: Job) {
+    this.logger.log(`Job ID: ${job.id} completed successfully`);
   }
 
-  // Helper method to check if an error is transient (network issues, etc.)
-  private isTransientError(error: any): boolean {
-    return (
-      error.message.includes('timeout') || error.message.includes('network')
-    );
+  @OnWorkerEvent('failed')
+  onFailed(job: Job, error: Error) {
+    this.logger.error(`Job ID: ${job.id} failed with error: ${error.message}`);
+  }
+
+  @OnWorkerEvent('drained')
+  onDrained() {
+    this.logger.log('Queue drained');
+  }
+
+  @OnWorkerEvent('error')
+  onError(error: Error) {
+    this.logger.error(`Worker error: ${error.message}`, error.stack);
+  }
+
+  private validateJobData(jobData: EmailJobData): void {
+    if (
+      !jobData.to ||
+      !jobData.subject ||
+      !jobData.context ||
+      !jobData.template
+    ) {
+      this.logger.error('Invalid job data');
+    }
   }
 }

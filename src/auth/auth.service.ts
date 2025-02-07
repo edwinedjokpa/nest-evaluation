@@ -17,15 +17,15 @@ import {
 } from './dto/auth-credentials.dto';
 import { JwtPayload } from './interfaces/jwt.payload';
 import { EmailJobData } from 'src/email/job-types';
-import { EmailService } from 'src/email/email.service';
+import { EMAIL_QUEUE_NAME } from 'src/constants';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-    @InjectQueue('email') private readonly emailQueue: Queue<EmailJobData>,
+    @InjectQueue(EMAIL_QUEUE_NAME)
+    private readonly emailQueue: Queue<EmailJobData>,
     private readonly jwtService: JwtService,
-    private readonly emailService: EmailService,
   ) {}
 
   async signUp(authCredentialsDto: AuthCredentialsDto) {

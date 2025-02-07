@@ -7,10 +7,11 @@ import { join } from 'path';
 import { EmailService } from './email.service';
 import { ConfigService } from '@nestjs/config';
 import { EmailProcessor } from './email.processor';
+import { EMAIL_QUEUE_NAME } from 'src/constants';
 
 @Module({
   imports: [
-    BullModule.registerQueue({ name: 'email' }),
+    BullModule.registerQueue({ name: EMAIL_QUEUE_NAME }),
     MailerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
