@@ -34,8 +34,5 @@ COPY --from=development /usr/src/app/dist ./dist
 # Expose the default port for NestJS
 EXPOSE 3000
 
-# Run the migration before starting the server
-RUN npm run migration:docker
-
 # Run the application in production mode
 CMD ["npm", "run", "start:prod"]
