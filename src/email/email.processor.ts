@@ -16,44 +16,88 @@ export class EmailProcessor extends WorkerHost {
   async process(job: Job<EmailJobData>) {
     const { to, subject, context, template } = job.data;
 
-    if (!to || !subject || !template) {
-      this.logger.error(
-        `Invalid job data for Job ID: ${job.id}. Missing required fields.`,
-      );
-      await job.moveToFailed(
-        new Error('Missing required fields: to, subject, or template'),
-        job.token,
-      );
+    // Validate required fields
+    if (!this.validateJobData(job, to, subject, template)) {
       return;
     }
 
     try {
-      // Attempt to send the email
+      // Send the email
       await this.emailService.sendSingleMail(to, subject, context, template);
-
-      // Log success
       this.logger.log(
         `Job ID: ${job.id} processed successfully. Email sent to: ${to}`,
       );
       await job.moveToCompleted('Email sent successfully', job.token);
     } catch (error) {
-      this.logger.error(
-        `Error processing Job ID: ${job.id}. Error: ${error.message}`,
-        error.stack,
-      );
-
-      if (this.isTransientError(error)) {
-        this.logger.log(
-          `Transient error detected for Job ID: ${job.id}. Retrying...`,
-        );
-        await job.retry();
-      } else {
-        this.logger.log(
-          `Non-transient error detected for Job ID: ${job.id}. Marking job as failed.`,
-        );
-        await job.moveToFailed(new Error(error.message), job.token);
-      }
+      await this.handleError(job, error);
     }
+  }
+
+  // Validate job data and log error if invalid
+  private validateJobData(
+    job: Job<EmailJobData>,
+    to: string,
+    subject: string,
+    template: string,
+  ): boolean {
+    if (!to || !subject || !template) {
+      const missingFields = [
+        !to ? 'to' : null,
+        !subject ? 'subject' : null,
+        !template ? 'template' : null,
+      ]
+        .filter(Boolean)
+        .join(', ');
+
+      this.logger.error(
+        `Invalid job data for Job ID: ${job.id}. Missing required fields: ${missingFields}`,
+      );
+      job.moveToFailed(
+        new Error(`Missing required fields: ${missingFields}`),
+        job.token,
+      );
+      return false;
+    }
+    return true;
+  }
+
+  // Handle error, retry if transient, or move to failed
+  private async handleError(job: Job, error: any) {
+    this.logger.error(
+      `Error processing Job ID: ${job.id}. Error: ${error.message}`,
+      error.stack,
+    );
+
+    if (this.isTransientError(error)) {
+      this.logger.log(
+        `Transient error detected for Job ID: ${job.id}. Retrying...`,
+      );
+      try {
+        // Optionally, limit retries to prevent infinite retry loops
+        if (job.attemptsMade < 3) {
+          await job.retry();
+        } else {
+          await this.moveToFailed(job, error, 'Exceeded retry limit');
+        }
+      } catch (retryError) {
+        this.logger.error('Error retrying job', retryError);
+        await this.moveToFailed(job, retryError, 'Retry failed');
+      }
+    } else {
+      await this.moveToFailed(job, error);
+    }
+  }
+
+  // Move job to failed state with error message
+  private async moveToFailed(
+    job: Job,
+    error: any,
+    reason: string = error.message,
+  ) {
+    this.logger.log(
+      `Non-transient error detected for Job ID: ${job.id}. Marking job as failed. Reason: ${reason}`,
+    );
+    await job.moveToFailed(new Error(reason), job.token);
   }
 
   // Helper method to check if an error is transient (network issues, etc.)

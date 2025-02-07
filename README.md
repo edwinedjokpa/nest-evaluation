@@ -57,72 +57,111 @@ To get a local copy up and running follow these simple example steps.
 
 ### Steps to Run Locally
 
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/edwinedjokpa/nest-evaluation.git
-   cd your-repo
-   ```
-2. **Install Dependencies**:
+1.  **Clone the Repository**:
+    ```bash
+    git clone https://github.com/edwinedjokpa/nest-evaluation.git
+    cd your-repo
+    ```
+2.  **Install Dependencies**:
 
-   ```bash
-   npm install
-   ```
+    ```bash
+    npm install
+    ```
 
-3. Set up database
+3.  Set up database
 
-   - Create a database in Postgres
+    - Create a database in Postgres
 
-4. **Set up Environment Variables**:
+4.  **Set up Environment Variables**:
 
-   - Create a `.env` file in the root directory and add the following variables:
+    - Create a `.env` file in the root directory and add the following variables:
 
-   ```bash
-   NODE_ENV=development
-   PORT=3000
-   POSTGRES_HOST=your_postgres_host
-   POSTGRES_PORT=your_postgres_port
-   POSTGRES_USER=your_postgres_user
-   POSTGRES_PASSWORD=your_postgres_password
-   POSTGRES_DB=your_postgres_database
-   JWT_SECRET=your_jwt_secret
-   JWT_EXPIRES_IN=your_jwt_expires_in
-   REDIS_HOST=your_redis_host
-   REDIS_PORT=your_redis_port
-   SMTP_HOST=your_smtp_host
-   SMTP_PORT=your_smtp_port
-   SMTP_SECURE=your_smtp_secure
-   SMTP_USER=your_smtp_user
-   SMTP_PASSWORD=your_smtp_password
-   SMTP_FROM=your_smtp_from
-   AWS_S3_ACCESS_KEY=your_aws_access_key_id
-   AWS_S3_SECRET_KEY=your_aws_secret_access_key
-   AWS_REGION=your_aws_region
-   AWS_S3_BUCKET=your_aws_bucket_name
-   ```
+    ```bash
+    NODE_ENV=development
+    PORT=3000
+    POSTGRES_HOST=your_postgres_host
+    POSTGRES_PORT=your_postgres_port
+    POSTGRES_USER=your_postgres_user
+    POSTGRES_PASSWORD=your_postgres_password
+    POSTGRES_DB=your_postgres_database
+    JWT_SECRET=your_jwt_secret
+    JWT_EXPIRES_IN=your_jwt_expires_in
+    REDIS_HOST=your_redis_host
+    REDIS_PORT=your_redis_port
+    SMTP_HOST=your_smtp_host
+    SMTP_PORT=your_smtp_port
+    SMTP_SECURE=your_smtp_secure
+    SMTP_USER=your_smtp_user
+    SMTP_PASSWORD=your_smtp_password
+    SMTP_FROM=your_smtp_from
+    AWS_S3_ACCESS_KEY=your_aws_access_key_id
+    AWS_S3_SECRET_KEY=your_aws_secret_access_key
+    AWS_REGION=your_aws_region
+    AWS_S3_BUCKET=your_aws_bucket_name
+    ```
 
-5. **Run Migrations**:
+5.  **Run the Application with Docker**:
 
-   ```bash
-   npm run migration:run
-   ```
+    - If you want to use Docker, you can use the provided `docker-compose.yml` file to set up the necessary services.
 
-6. **Run the Application**:
+      ```bash
+      docker-compose up
+      ```
 
-   - Start the development server:
+    - If you want to run the application without Docker, you can use the following command:
 
-   ```bash
-   npm run start:dev
-   ```
+      Run migrations to create tables in the database:
 
-   or
+      ```bash
+        docker compose exec server npm run migration:docker
+      ```
 
-   - Start a Docker container:
+6.  **Set up Redis**:
 
-   ```bash
-   docker-compose up
-   ```
+    - Install Redis and start the Redis server.
+    - Update the `REDIS_HOST` and `REDIS_PORT` in your `.env` file.
+    - Run the Redis server:
 
-   The API will be accessible at `http://localhost:3000`.
+    ```bash
+    redis-server
+    ```
+
+    - Verify that Redis is running by running the following command:
+
+    ```bash
+    redis-cli ping
+    ```
+
+    - If the response is "PONG", Redis is running.
+    - If the response is not "PONG", check your Redis configuration and ensure it's running.
+    - If Redis is not running, start it using the command:
+
+    ```bash
+    redis-server
+    ```
+
+7.  **Set up SMTP**:
+
+    - Set up an SMTP server for sending emails.
+    - Update the `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, and `SMTP_FROM` in your `.env` file.
+    - You can use services like [Mailgun](https://www.mailgun.com/) or [SendGrid](https://sendgrid.com/) for sending emails.
+    - You can also use your own SMTP server or a service like [Mailtrap](https://mailtrap.io/) for testing.
+
+8.  **Run Migrations**:
+
+    ```bash
+    npm run migration:run
+    ```
+
+9.  **Run the Application**:
+
+    - Start the development server:
+
+    ```bash
+    npm run start:dev
+    ```
+
+    The API will be accessible at `http://localhost:3000`.
 
 ## API Documentation
 

@@ -18,7 +18,10 @@ const dataSource = new DataSource({
   entities: [User, Admin],
   synchronize: true,
   logging: true,
-  migrations: ['./src/database/migrations/*{.ts,.js}'],
+  migrations: [
+    './src/database/migrations/*{.ts,.js}',
+    './dist/src/database/migrations/*{.ts,.js}',
+  ],
 });
 
 export default dataSource;

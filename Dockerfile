@@ -3,13 +3,17 @@ FROM node:20-alpine3.17 AS development
 
 WORKDIR /usr/src/app
 
+ENV NODE_ENV=development
+
 COPY package*.json ./
 
 # Install both dependencies and devDependencies for development
 RUN npm install
 
+# Copy all files
 COPY . .
 
+# Build the application
 RUN npm run build
 
 # Production Stage
