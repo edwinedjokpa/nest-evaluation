@@ -3,11 +3,11 @@ import { IsNotEmpty, IsString, IsEmail, Matches } from 'class-validator';
 export class AuthCredentialsDto {
   @IsNotEmpty()
   @IsString()
-  firstName: string;
+  first_name: string;
 
   @IsNotEmpty()
   @IsString()
-  lastName: string;
+  last_name: string;
 
   @IsNotEmpty()
   @IsEmail()
