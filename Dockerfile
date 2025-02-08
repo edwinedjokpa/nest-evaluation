@@ -8,7 +8,7 @@ ENV NODE_ENV=development
 COPY package*.json ./
 
 # Install both dependencies and devDependencies for development
-RUN npm install && npm run migration:run
+RUN npm install
 
 # Copy all files
 COPY . .

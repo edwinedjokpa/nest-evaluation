@@ -18,6 +18,10 @@ import { EMAIL_QUEUE_NAME } from 'src/constants';
         transport: {
           host: configService.get<string>('SMTP_HOST'),
           port: configService.get<number>('SMTP_PORT', 587),
+          tls: {
+            minVersion: 'TLSv1.2',
+            rejectUnauthorized: true,
+          },
           secure: configService.get<boolean>('SMTP_SECURE', false),
           auth: {
             user: configService.get<string>('SMTP_USER'),
