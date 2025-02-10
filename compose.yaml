@@ -13,7 +13,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
-      REDIS_HOST: ${REDIS_HOST}
+      REDIS_URL: ${REDIS_URL}
       REDIS_PORT: ${REDIS_PORT}
       SMTP_HOST: ${SMTP_HOST}
       SMTP_PORT: ${SMTP_PORT}
@@ -65,10 +65,10 @@ services:
   redis:
     image: redis:latest
     container_name: redis
+    ports:
+      - '6379:6379' 
     networks:
       - app-network
-    ports:
-      - '6379:6379'
     volumes:
       - redis_data:/data
     restart: always
@@ -78,9 +78,6 @@ services:
     container_name: redis-insight
     ports:
       - "5540:5540"
-    environment:
-      REDIS_HOST: ${REDIS_HOST}
-      REDIS_PORT: ${REDIS_PORT}
     volumes:
       - redisinsight_data:/data
     depends_on:
@@ -97,4 +94,3 @@ volumes:
   postgres_data:
   redis_data:
   redisinsight_data:
-  localstack_data:

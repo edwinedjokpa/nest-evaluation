@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  InternalServerErrorException,
   Post,
   UploadedFiles,
   UseInterceptors,
@@ -26,14 +25,10 @@ export class AppController {
   @Post('files')
   @UseInterceptors(FilesInterceptor('files'))
   async uploadFiles(@UploadedFiles() files: Express.Multer.File[]) {
-    try {
-      const uploadedFileUrls = await this.appService.uploadFiles(files);
-      return {
-        message: 'Files uploaded successfully!',
-        data: uploadedFileUrls,
-      };
-    } catch (error) {
-      throw new InternalServerErrorException('Error during file upload');
-    }
+    const fileUrls = await this.appService.uploadFiles(files);
+    return {
+      message: 'Files uploaded successfully!',
+      data: { fileUrls },
+    };
   }
 }

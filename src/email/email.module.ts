@@ -14,11 +14,7 @@ import { ConfigService } from '@nestjs/config';
       useFactory: async (configService: ConfigService) => ({
         transport: {
           host: configService.get<string>('SMTP_HOST'),
-          port: configService.get<number>('SMTP_PORT', 587),
-          tls: {
-            minVersion: 'TLSv1.2',
-            rejectUnauthorized: true,
-          },
+          port: configService.get<number>('SMTP_PORT', 465),
           secure: configService.get<boolean>('SMTP_SECURE', false),
           auth: {
             user: configService.get<string>('SMTP_USER'),
@@ -39,6 +35,6 @@ import { ConfigService } from '@nestjs/config';
     }),
   ],
   providers: [EmailService],
-  exports: [EmailService],
+  exports: [],
 })
 export class EmailModule {}

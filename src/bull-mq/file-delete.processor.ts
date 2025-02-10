@@ -50,6 +50,7 @@ export class FileDeleteProcessor extends WorkerHost {
       this.logger.log('File deleted successfully!');
     } catch (error) {
       this.logger.error(error);
+      throw new BadRequestException('Error deleting file');
     }
   }
 

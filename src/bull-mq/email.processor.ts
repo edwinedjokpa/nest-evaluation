@@ -1,16 +1,16 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { EmailJobData } from './job-types';
-import { EmailService } from '../email/email.service';
 import { EMAIL_QUEUE_NAME } from 'src/constants';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Processor(EMAIL_QUEUE_NAME)
 @Injectable()
 export class EmailProcessor extends WorkerHost {
   private readonly logger: Logger = new Logger(EmailProcessor.name);
 
-  constructor(private readonly emailService: EmailService) {
+  constructor(private readonly mailerService: MailerService) {
     super();
   }
 
@@ -18,10 +18,18 @@ export class EmailProcessor extends WorkerHost {
     this.validateJobData(job.data);
 
     const { to, subject, context, template } = job.data;
+    const recipients = Array.isArray(to) ? to : [to];
 
     try {
-      await this.emailService.sendSingleMail(to, subject, context, template);
-      this.logger.log(`Job: ${job.id} processed from queue`);
+      await this.mailerService.sendMail({
+        to: recipients,
+        subject: subject,
+        template: template,
+        context: { email: to, ...context },
+      });
+      this.logger.log(
+        `Job: ${job.id} processed from queue. Email sent to ${recipients.join(', ')}`,
+      );
     } catch (error) {
       this.logger.error(
         `Job: ${job.id} failed with error: ${error.message}`,
@@ -58,6 +66,7 @@ export class EmailProcessor extends WorkerHost {
       !jobData.template
     ) {
       this.logger.error('Invalid job data');
+      throw new BadRequestException('Invalid job data');
     }
   }
 }

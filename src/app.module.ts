@@ -13,21 +13,11 @@ import { EmailModule } from './email/email.module';
 import { PingService } from './ping/ping.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BullMqModule } from './bull-mq/bull-mq.module';
-import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-    }),
-    BullModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        connection: {
-          url: configService.get<string>('REDIS_HOST'),
-          port: configService.get<number>('REDIS_PORT'),
-        },
-      }),
     }),
     ThrottlerModule.forRoot([
       {

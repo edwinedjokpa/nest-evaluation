@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UploadService } from './upload/upload.service';
 
 @Injectable()
@@ -13,10 +13,18 @@ export class AppService {
   }
 
   async uploadFile(file: Express.Multer.File): Promise<string> {
-    return await this.uploadService.uploadFile(file);
+    try {
+      return await this.uploadService.uploadFile(file);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   async uploadFiles(files: Express.Multer.File[]): Promise<string[]> {
-    return await this.uploadService.uploadFiles(files);
+    try {
+      return await this.uploadService.uploadFiles(files);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 }

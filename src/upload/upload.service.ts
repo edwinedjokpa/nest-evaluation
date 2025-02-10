@@ -38,7 +38,7 @@ export class UploadService {
       return uploadedFileUrls;
     } catch (error) {
       this.logger.error(error);
-      throw new BadRequestException('Error uploading files');
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -64,7 +64,7 @@ export class UploadService {
       this.logger.log('File deleted successfully via queue');
     } catch (error) {
       this.logger.error(error);
-      throw new BadRequestException('Error deleting file');
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -87,7 +87,7 @@ export class UploadService {
       this.logger.log('Files deleted successfully via queue');
     } catch (error) {
       this.logger.error(error);
-      throw new BadRequestException('Error deleting files');
+      throw new BadRequestException(error.message);
     }
   }
 
