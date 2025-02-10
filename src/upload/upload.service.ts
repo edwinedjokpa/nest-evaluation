@@ -1,154 +1,118 @@
-import {
-  DeleteObjectCommand,
-  DeleteObjectsCommand,
-  PutObjectCommand,
-  PutObjectCommandInput,
-  PutObjectCommandOutput,
-  S3Client,
-} from '@aws-sdk/client-s3';
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { Queue, QueueEvents } from 'bullmq';
+import { InjectQueue } from '@nestjs/bullmq';
+import { FILE_DELETE_QUEUE_NAME, FILE_UPLOAD_QUEUE_NAME } from 'src/constants';
 
 @Injectable()
 export class UploadService {
   private readonly logger = new Logger(UploadService.name);
-  private readonly region: string;
-  private readonly bucket: string;
-  private readonly s3Client: S3Client;
-  constructor(private readonly configService: ConfigService) {
-    this.region = configService.get('AWS_S3_REGION');
-    this.bucket = configService.get('AWS_S3_BUCKET');
-    this.s3Client = new S3Client({
-      region: this.region,
-      credentials: {
-        accessKeyId: configService.get('AWS_S3_ACCESS_KEY'),
-        secretAccessKey: configService.get('AWS_S3_SECRET_KEY'),
-      },
-    });
+  private readonly queueEvents: QueueEvents;
+
+  constructor(
+    @InjectQueue(FILE_UPLOAD_QUEUE_NAME)
+    private readonly fileUploadQueue: Queue,
+    @InjectQueue(FILE_DELETE_QUEUE_NAME)
+    private readonly fileDeleteQueue: Queue,
+  ) {
+    // Initialize QueueEvents to listen for events globally on the file-upload queue
+    this.queueEvents = new QueueEvents(FILE_UPLOAD_QUEUE_NAME);
   }
+
+  // Upload multiple files using queue
   async uploadFiles(files: Express.Multer.File[]): Promise<string[]> {
     const uploadedFileUrls: string[] = [];
 
     try {
-      await Promise.all(
-        files.map(async (file) => {
-          const input: PutObjectCommandInput = {
-            Bucket: this.bucket,
-            Key: file.originalname,
-            Body: file.buffer,
-            ContentType: file.mimetype,
-            ACL: 'public-read',
-          };
+      // Create promises for each file upload job
+      const uploadPromises = files.map(async (file) => {
+        const job = await this.fileUploadQueue.add('upload', { file });
 
-          const response: PutObjectCommandOutput = await this.s3Client.send(
-            new PutObjectCommand(input),
-          );
+        // Wait for the job to complete or fail
+        const fileUrl = await this.waitForJobCompletion(job.id);
+        uploadedFileUrls.push(fileUrl);
+      });
 
-          const fileUrl = `https://${this.bucket}.s3.amazonaws.com/${file.originalname}`;
-          uploadedFileUrls.push(fileUrl);
+      // Wait for all jobs to complete
+      await Promise.all(uploadPromises);
 
-          // Extract file location from response metadata
-          if (response.$metadata?.httpStatusCode !== 200) {
-            this.logger.error(
-              'Error uploading file',
-              response.$metadata?.httpStatusCode,
-            );
-          }
-
-          this.logger.log('File uploaded successfully');
-        }),
-      );
       return uploadedFileUrls;
     } catch (error) {
       this.logger.error(error);
-      throw new InternalServerErrorException('Error uploading files');
+      throw new BadRequestException('Error uploading files');
     }
   }
 
+  // Upload a single file using queue
   async uploadFile(file: Express.Multer.File): Promise<string> {
-    const input: PutObjectCommandInput = {
-      Bucket: this.bucket,
-      Key: file.originalname,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-      ACL: 'public-read',
-    };
+    const job = await this.fileUploadQueue.add('upload', { file });
 
-    const response: PutObjectCommandOutput = await this.s3Client.send(
-      new PutObjectCommand(input),
-    );
-
-    const fileUrl = `https://${this.bucket}.s3.amazonaws.com/${file.originalname}`;
-
-    if (response.$metadata?.httpStatusCode !== 200) {
-      this.logger.error(
-        'Error uploading file',
-        response.$metadata?.httpStatusCode,
-      );
-    }
-
-    this.logger.log('File uploaded successfully');
+    // Wait for the job to complete and get the file URL
+    const fileUrl = await this.waitForJobCompletion(job.id);
     return fileUrl;
   }
 
-  async deleteFiles(mediaFiles: string[]) {
+  // Delete a single file using queue
+  async deleteFile(file: string): Promise<void> {
+    const key = new URL(file).pathname.substring(1);
+
     try {
-      await Promise.all(
-        mediaFiles.map(async (file) => {
-          const key = new URL(file).pathname.substring(1);
+      const job = await this.fileDeleteQueue.add('delete', { key });
 
-          const deleteParams = {
-            Bucket: this.bucket,
-            Delete: {
-              Objects: [{ Key: key }],
-            },
-          };
+      // Wait for the job to complete
+      await this.waitForJobCompletion(job.id);
 
-          const response = await this.s3Client.send(
-            new DeleteObjectsCommand(deleteParams),
-          );
-
-          if (response.$metadata.httpStatusCode !== 200) {
-            this.logger.error(
-              'Failed to delete files',
-              response.$metadata.httpStatusCode,
-            );
-          }
-
-          this.logger.log('Files deleted successfully!');
-        }),
-      );
+      this.logger.log('File deleted successfully via queue');
     } catch (error) {
       this.logger.error(error);
+      throw new BadRequestException('Error deleting file');
     }
   }
 
-  async deleteFile(file: string) {
-    const key = new URL(file).pathname.substring(1);
-
-    const deleteParams = {
-      Bucket: this.bucket,
-      Key: key,
-    };
-
+  // Delete multiple files using queue
+  async deleteFiles(mediaFiles: string[]): Promise<void> {
     try {
-      const response = await this.s3Client.send(
-        new DeleteObjectCommand(deleteParams),
-      );
+      // Create promises for each file deletion job
+      const deletePromises = mediaFiles.map(async (file) => {
+        const key = new URL(file).pathname.substring(1);
 
-      if (response.$metadata.httpStatusCode !== 204) {
-        this.logger.error(
-          'Failed to delete file',
-          response.$metadata.httpStatusCode,
-        );
-      }
-      return this.logger.log('File deleted successfully!');
+        const job = await this.fileDeleteQueue.add('delete', { key });
+
+        // Wait for the job to complete
+        await this.waitForJobCompletion(job.id);
+      });
+
+      // Wait for all delete jobs to complete
+      await Promise.all(deletePromises);
+
+      this.logger.log('Files deleted successfully via queue');
     } catch (error) {
       this.logger.error(error);
+      throw new BadRequestException('Error deleting files');
     }
+  }
+
+  // Helper function to wait for job completion and return the result
+  private async waitForJobCompletion(jobId: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      // Listen for completion or failure events for the given jobId
+      this.queueEvents.on(
+        'completed',
+        async ({ jobId: completedJobId, returnvalue }) => {
+          if (completedJobId === jobId) {
+            resolve(returnvalue);
+          }
+        },
+      );
+
+      // Handle failure event
+      this.queueEvents.on(
+        'failed',
+        async ({ jobId: failedJobId, failedReason }) => {
+          if (failedJobId === jobId) {
+            reject(new Error(`Job failed: ${failedReason}`));
+          }
+        },
+      );
+    });
   }
 }

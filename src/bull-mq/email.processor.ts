@@ -2,7 +2,7 @@ import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { EmailJobData } from './job-types';
-import { EmailService } from './email.service';
+import { EmailService } from '../email/email.service';
 import { EMAIL_QUEUE_NAME } from 'src/constants';
 
 @Processor(EMAIL_QUEUE_NAME)

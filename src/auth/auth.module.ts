@@ -10,7 +10,7 @@ import { User } from 'src/database/entities/user.entity';
 import { Admin } from 'src/database/entities/admin.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { EmailModule } from 'src/email/email.module';
+import { BullMqModule } from 'src/bull-mq/bull-mq.module';
 
 @Module({
   imports: [
@@ -26,7 +26,7 @@ import { EmailModule } from 'src/email/email.module';
         },
       }),
     }),
-    EmailModule,
+    BullMqModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, JwtAuthGuard],

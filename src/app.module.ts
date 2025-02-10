@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { BullModule } from '@nestjs/bullmq';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 
@@ -13,6 +12,8 @@ import { UserModule } from './user/user.module';
 import { EmailModule } from './email/email.module';
 import { PingService } from './ping/ping.service';
 import { ScheduleModule } from '@nestjs/schedule';
+import { BullMqModule } from './bull-mq/bull-mq.module';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     UserModule,
     EmailModule,
     ScheduleModule.forRoot(),
+    BullMqModule,
   ],
   controllers: [AppController],
   providers: [

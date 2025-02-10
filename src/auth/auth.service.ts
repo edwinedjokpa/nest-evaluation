@@ -16,7 +16,7 @@ import {
   LoginCredentialsDto,
 } from './dto/auth-credentials.dto';
 import { JwtPayload } from './interfaces/jwt.payload';
-import { EmailJobData } from 'src/email/job-types';
+import { EmailJobData } from 'src/bull-mq/job-types';
 import { EMAIL_QUEUE_NAME } from 'src/constants';
 
 @Injectable()
