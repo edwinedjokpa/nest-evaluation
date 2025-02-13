@@ -1,21 +1,13 @@
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-    <li>
-      <a href="#built-with">Built With</a>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-    <li>
-      <a href="#prerequisites">Prerequisites</a>
-    <li>
-      <a href="#installation">Installation</a>
-    <li>
-      <a href="#contact">Contact</a>
-  </ol>
-</details>
+# Project Title
+
+## Table of Contents
+
+- [About The Project](#about-the-project)
+- [Built With](#built-with)
+- [Getting Started](#getting-started)
+- [Prerequisites](#prerequisites)
+- [Setup Instructions](#setup-instructions)
+- [Contact](#contact)
 
 <!-- ABOUT THE PROJECT -->
 
@@ -57,125 +49,127 @@ To get a local copy up and running follow these simple example steps.
 
 ### Steps to Run Locally
 
-1.  **Clone the Repository**:
-    ```bash
-    git clone https://github.com/edwinedjokpa/nest-evaluation.git
-    cd your-repo
-    ```
-2.  **Install Dependencies**:
+1. **Clone the Repository**:
 
-    ```bash
-    npm install
-    ```
+   ```bash
+   git clone https://github.com/edwinedjokpa/nest-evaluation.git
+   cd your-repo
+   ```
 
-3.  **Set up Database**:
+2. **Install Dependencies**:
 
-    - Create a database in Postgres
-    - Create a `.env` file in the root directory and add the following variables:
+   ```bash
+   npm install
+   ```
 
-    ```bash
-    POSTGRES_HOST=your_postgres_host
-    POSTGRES_PORT=your_postgres_port
-    POSTGRES_USER=your_postgres_user
-    POSTGRES_PASSWORD=your_postgres_password
-    POSTGRES_DB=your_postgres_db
-    ```
+3. **Set up Database**:
 
-4.  **Set up Redis**:
+   - Create a database in Postgres
+   - Create a `.env` file in the root directory and add the following variables:
 
-    - Install Redis and start the Redis server.
-    - Update the `REDIS_URL` and `REDIS_PORT` in your `.env` file.
-    - Run the Redis server:
+   ```bash
+   POSTGRES_HOST=your_postgres_host
+   POSTGRES_PORT=your_postgres_port
+   POSTGRES_USER=your_postgres_user
+   POSTGRES_PASSWORD=your_postgres_password
+   POSTGRES_DB=your_postgres_db
+   ```
 
-    ```bash
-    redis-server
-    ```
+4. **Set up Redis**:
 
-    - Verify that Redis is running by running the following command:
+   - Install Redis and start the Redis server.
+   - Update the `REDIS_HOST` and `REDIS_PORT` in your `.env` file.
+   - Run the Redis server:
 
-    ```bash
-    redis-cli ping
-    ```
+   ```bash
+   redis-server
+   ```
 
-    - If the response is "PONG", Redis is running.
-    - If the response is not "PONG", check your Redis configuration and ensure it's running.
-    - If Redis is not running, start it using the command:
+   - Verify that Redis is running by running the following command:
 
-    ```bash
-    redis-server
-    ```
+   ```bash
+   redis-cli ping
+   ```
 
-5.  **Set up SMTP**:
+   - If the response is "PONG", Redis is running.
+   - If the response is not "PONG", check your Redis configuration and ensure it's running.
+   - If Redis is not running, start it using the command:
 
-    - Set up an SMTP server for sending emails.
-    - Update the `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, and `SMTP_FROM` in your `.env` file.
-    - You can use services like [Mailgun](https://www.mailgun.com/) or [SendGrid](https://sendgrid.com/) for sending emails.
-    - You can also use your own SMTP server or a service like [Mailtrap](https://mailtrap.io/) for testing.
+   ```bash
+   redis-server
+   ```
 
-6.  **Set up AWS S3**:
+5. **Set up SMTP**:
 
-    - Set up an AWS S3 bucket for storing files.
-    - Update the `AWS_S3_ACCESS_KEY`, `AWS_S3_SECRET_KEY`, `AWS_S3_BUCKET`, and `AWS_S3_REGION` in your `.env` file.
-    - You can use the AWS Management Console to create an S3 bucket and get the necessary credentials.
-    - You use services like [Amazon S3](https://aws.amazon.com/s3/) for storing files.
+   - Set up an SMTP server for sending emails.
+   - Update the `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, and `SMTP_FROM` in your `.env` file.
+   - You can use services like [Mailgun](https://www.mailgun.com/) or [SendGrid](https://sendgrid.com/) for sending emails.
+   - You can also use your own SMTP server or a service like [Mailtrap](https://mailtrap.io/) for testing.
 
-7.  **Update Environment Variables**:
+6. **Set up AWS S3**:
 
-    - Create a `.env` file in the root directory and add the following variables:
+   - Set up an AWS S3 bucket for storing files.
+   - Update the `AWS_S3_ACCESS_KEY`, `AWS_S3_SECRET_KEY`, `AWS_S3_BUCKET`, and `AWS_S3_REGION` in your `.env` file.
+   - You can use the AWS Management Console to create an S3 bucket and get the necessary credentials.
+   - You use services like [Amazon S3](https://aws.amazon.com/s3/) for storing files.
 
-    ```bash
-    NODE_ENV=development
-    PORT=3000
-    POSTGRES_HOST=your_postgres_host
-    POSTGRES_PORT=your_postgres_port
-    POSTGRES_USER=your_postgres_user
-    POSTGRES_PASSWORD=your_postgres_password
-    POSTGRES_DB=your_postgres_database
-    JWT_SECRET=your_jwt_secret
-    JWT_EXPIRES_IN=your_jwt_expires_in
-    REDIS_URL=your_REDIS_URL
-    REDIS_PORT=your_redis_port
-    SMTP_HOST=your_smtp_host
-    SMTP_PORT=your_smtp_port
-    SMTP_SECURE=your_smtp_secure
-    SMTP_USER=your_smtp_user
-    SMTP_PASSWORD=your_smtp_password
-    SMTP_FROM=your_smtp_from
-    AWS_S3_ACCESS_KEY=your_aws_access_key_id
-    AWS_S3_SECRET_KEY=your_aws_secret_access_key
-    AWS_REGION=your_aws_region
-    AWS_S3_BUCKET=your_aws_bucket_name
-    ```
+7. **Update Environment Variables**:
 
-8.  **Run the Application with Docker**:
+   - Create a `.env` file in the root directory and add the following variables:
 
-    - If you want to use Docker, you can use the provided `docker-compose.yml` file to set up the necessary services.
+   ```bash
+   NODE_ENV=development
+   PORT=3000
+   POSTGRES_HOST=your_postgres_host
+   POSTGRES_PORT=your_postgres_port
+   POSTGRES_USER=your_postgres_user
+   POSTGRES_PASSWORD=your_postgres_password
+   POSTGRES_DB=your_postgres_database
+   JWT_SECRET=your_jwt_secret
+   JWT_EXPIRES_IN=your_jwt_expires_in
+   REDIS_HOST=your_REDIS_HOST
+   REDIS_PORT=your_redis_port
+   SMTP_HOST=your_smtp_host
+   SMTP_PORT=your_smtp_port
+   SMTP_SECURE=your_smtp_secure
+   SMTP_USER=your_smtp_user
+   SMTP_PASSWORD=your_smtp_password
+   SMTP_FROM=your_smtp_from
+   AWS_S3_ACCESS_KEY=your_aws_access_key_id
+   AWS_S3_SECRET_KEY=your_aws_secret_access_key
+   AWS_REGION=your_aws_region
+   AWS_S3_BUCKET=your_aws_bucket_name
+   ```
 
-      ```bash
-      docker-compose up
-      ```
+8. **Run the Application with Docker**:
 
-    - Run migrations to create tables in the database:
+   - If you want to use Docker, you can use the provided `docker-compose.yml` file to set up the necessary services.
 
-      ```bash
-        docker compose exec server npm run migration:docker
-      ```
+     ```bash
+     docker-compose up
+     ```
 
-9.  **Run the Application without Docker**:
+   - Run migrations to create tables in the database:
 
-    - Start the development server:
+     ```bash
+       docker compose exec server npm run migration:docker
+     ```
 
-    ```bash
-    npm run start:dev
-    ```
+9. **Run the Application without Docker**:
 
-    - Run migrations to create tables in the database:
+   - Start the development server:
 
-    ```bash
-    npm run migration:run
-    ```
+   ```bash
+   npm run start:dev
+   ```
 
-    The API will be accessible at `http://localhost:3000`.
+   - Run migrations to create tables in the database:
+
+   ```bash
+   npm run migration:run
+   ```
+
+   The API will be accessible at `http://localhost:3000`.
 
 ## API Documentation
 
@@ -193,13 +187,13 @@ To get a local copy up and running follow these simple example steps.
 
 ## Example Usage
 
-1. Request
+1: Request
 
 ```bash
    curl -X POST http://localhost:3000/auth/register -H "Content-Type: application/json" -d '{"firstName": "John", "lastName": "Does" "email": "johndoe@email.com", "password": "password"}'
 ```
 
-2. Response
+2: Response
 
 ```bash
 {
@@ -221,13 +215,13 @@ To get a local copy up and running follow these simple example steps.
 }
 ```
 
-3. Request
+3: Request
 
 ```bash
 curl -X POST http://localhost:3000/auth/login -H "Content-Type: application/json" -d '{"email": "johndoe@email.com", "password": "password"}'
 ```
 
-4. Response
+4: Response
 
 ```bash
 {
@@ -240,13 +234,13 @@ curl -X POST http://localhost:3000/auth/login -H "Content-Type: application/json
 }
 ```
 
-5. Request
+5: Request
 
 ```bash
 curl -X GET http://localhost:3000/user/dashboard -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImVkan9rcGFldWRpbmdAZ21haWwuY29tIiwiaWF0IjoxNjk0OTQ1MjUyLCJleHAiOjE2OTQ5NDg4NTJ9.0B7Q73q386104653360814990230920478608957"
 ```
 
-6. Response
+6: Response
 
 ```bash
 {
@@ -276,10 +270,10 @@ The project is deployed on [Render](https://render.com/).
 
 ## Contact
 
-- [ ] <span style="font-size: 16px; font-weight: bold;">Edwin Edjokpa</span>
+- **Edwin Edjokpa**
 
-- [ ] <span style="font-size: 16px; font-weight: bold;">[@linkedin](https://www.linkedin.com/in/edwinedjokpa/)</span>
+- **[@linkedin](https://www.linkedin.com/in/edwinedjokpa/)**
 
-- [ ] <span style="font-size: 16px; font-weight: bold;">edjokpaedwin@gmail.com</span>
+- **<edjokpaedwin@gmail.com>**
 
-- [ ] <span style="font-size: 16px; font-weight: bold;">WhatsApp : 08137016881</span>
+- **WhatsApp : 08137016881**

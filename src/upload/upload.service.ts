@@ -109,7 +109,7 @@ export class UploadService {
         'failed',
         async ({ jobId: failedJobId, failedReason }) => {
           if (failedJobId === jobId) {
-            reject(new Error(`Job failed: ${failedReason}`));
+            reject(new BadRequestException(`Job failed: ${failedReason}`));
           }
         },
       );

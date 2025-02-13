@@ -8,7 +8,6 @@ import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    // BullModule.registerQueue({ name: EMAIL_QUEUE_NAME }),
     MailerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({

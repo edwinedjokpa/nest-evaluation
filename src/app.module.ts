@@ -12,12 +12,22 @@ import { UserModule } from './user/user.module';
 import { EmailModule } from './email/email.module';
 import { PingService } from './ping/ping.service';
 import { ScheduleModule } from '@nestjs/schedule';
-import { BullMqModule } from './bull-mq/bull-mq.module';
+import { BullModule } from '@nestjs/bullmq';
+import { QueueModule } from './queue/queue.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        connection: {
+          host: configService.get<string>('REDIS_HOST'),
+          port: configService.get<number>('REDIS_PORT'),
+        },
+      }),
     }),
     ThrottlerModule.forRoot([
       {
@@ -30,7 +40,7 @@ import { BullMqModule } from './bull-mq/bull-mq.module';
     UserModule,
     EmailModule,
     ScheduleModule.forRoot(),
-    BullMqModule,
+    QueueModule,
   ],
   controllers: [AppController],
   providers: [

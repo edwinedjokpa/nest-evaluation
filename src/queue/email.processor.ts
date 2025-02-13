@@ -1,9 +1,9 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
-import { EmailJobData } from './job-types';
 import { EMAIL_QUEUE_NAME } from 'src/constants';
 import { MailerService } from '@nestjs-modules/mailer';
+import { EmailJobData } from './job-types';
 
 @Processor(EMAIL_QUEUE_NAME)
 @Injectable()
