@@ -24,8 +24,7 @@ import { QueueModule } from './queue/queue.module';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         connection: {
-          host: configService.get<string>('REDIS_HOST'),
-          port: configService.get<number>('REDIS_PORT'),
+          url: configService.get<string>('REDIS_URL'),
         },
       }),
     }),

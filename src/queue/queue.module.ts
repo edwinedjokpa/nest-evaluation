@@ -22,8 +22,8 @@ import { UploadService } from 'src/upload/upload.service';
     EmailService,
     UploadService,
     EmailProcessor,
-    // FileUploadProcessor,
-    // FileDeleteProcessor,
+    FileUploadProcessor,
+    FileDeleteProcessor,
   ],
   exports: [BullModule],
 })

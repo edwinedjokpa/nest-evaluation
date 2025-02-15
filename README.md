@@ -78,7 +78,7 @@ To get a local copy up and running follow these simple example steps.
 4. **Set up Redis**:
 
    - Install Redis and start the Redis server.
-   - Update the `REDIS_HOST` and `REDIS_PORT` in your `.env` file.
+   - Update the `REDIS_URL` in your `.env` file.
    - Run the Redis server:
 
    ```bash
@@ -127,8 +127,7 @@ To get a local copy up and running follow these simple example steps.
    POSTGRES_DB=your_postgres_database
    JWT_SECRET=your_jwt_secret
    JWT_EXPIRES_IN=your_jwt_expires_in
-   REDIS_HOST=your_REDIS_HOST
-   REDIS_PORT=your_redis_port
+   REDIS_URL=your_REDIS_URL
    SMTP_HOST=your_smtp_host
    SMTP_PORT=your_smtp_port
    SMTP_SECURE=your_smtp_secure
