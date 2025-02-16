@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { Queue, QueueEvents } from 'bullmq';
 import { InjectQueue } from '@nestjs/bullmq';
 import { FILE_DELETE_QUEUE_NAME, FILE_UPLOAD_QUEUE_NAME } from 'src/constants';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UploadService {
@@ -13,9 +14,12 @@ export class UploadService {
     private readonly fileUploadQueue: Queue,
     @InjectQueue(FILE_DELETE_QUEUE_NAME)
     private readonly fileDeleteQueue: Queue,
+    private readonly configService: ConfigService,
   ) {
     // Initialize QueueEvents to listen for events globally on the file-upload queue
-    this.queueEvents = new QueueEvents(FILE_UPLOAD_QUEUE_NAME);
+    this.queueEvents = new QueueEvents(FILE_UPLOAD_QUEUE_NAME, {
+      connection: { url: configService.get<string>('REDIS_URL') },
+    });
   }
 
   // Upload multiple files using queue

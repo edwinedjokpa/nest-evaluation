@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 
@@ -11,8 +13,7 @@ import { UploadService } from './upload/upload.service';
 import { UserModule } from './user/user.module';
 import { EmailModule } from './email/email.module';
 import { PingService } from './ping/ping.service';
-import { ScheduleModule } from '@nestjs/schedule';
-import { BullModule } from '@nestjs/bullmq';
+
 import { QueueModule } from './queue/queue.module';
 
 @Module({
@@ -20,6 +21,7 @@ import { QueueModule } from './queue/queue.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     BullModule.forRootAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
@@ -28,17 +30,20 @@ import { QueueModule } from './queue/queue.module';
         },
       }),
     }),
-    ThrottlerModule.forRoot([
-      {
-        ttl: 60000,
-        limit: 10,
-      },
-    ]),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => [
+        {
+          ttl: config.get('THROTTLE_TTL'),
+          limit: config.get('THROTTLE_LIMIT'),
+        },
+      ],
+    }),
     DatabaseModule,
     AuthModule,
     UserModule,
     EmailModule,
-    ScheduleModule.forRoot(),
     QueueModule,
   ],
   controllers: [AppController],
