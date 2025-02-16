@@ -18,7 +18,7 @@ export class UploadService {
   ) {
     // Initialize QueueEvents to listen for events globally on the file-upload queue
     this.queueEvents = new QueueEvents(FILE_UPLOAD_QUEUE_NAME, {
-      connection: { url: configService.get<string>('REDIS_URL') },
+      connection: { url: this.configService.get<string>('REDIS_URL') },
     });
   }
 
